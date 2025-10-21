@@ -5,51 +5,125 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Le Voile du Manoir</title>
 <style>
-  :root{--accent:#86c08a;--gold:#f1c40f;--ok:#55d67a}
-  *{box-sizing:border-box} html,body{margin:0;height:100%;background:#0d0f13;color:#eee;font:16px/1.4 system-ui,Segoe UI,Arial}
-  .wrap{max-width:520px;margin:0 auto;padding:12px}
-  .frame{position:sticky;top:0;z-index:1;height:min(62vh,560px);border-radius:14px;overflow:hidden;background:#111;border:1px solid #222}
+  :root{--accent:#86c08a;--gold:#f1c40f;--ok:#55d67a;--danger:#ff4757}
+  *{box-sizing:border-box} html,body{margin:0;height:100%;background:#0a0e13;color:#eee;font:16px/1.4 system-ui,Segoe UI,Arial;overflow-x:hidden}
+  
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle at 50% 50%,rgba(134,192,138,.05) 0%,transparent 70%);pointer-events:none;z-index:0}
+  
+  .wrap{max-width:520px;margin:0 auto;padding:12px;position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column}
+  
+  .frame{position:sticky;top:0;z-index:10;height:min(65vh,600px);border-radius:20px;overflow:hidden;background:#111;border:2px solid #86c08a44;box-shadow:0 0 40px rgba(134,192,138,.2);margin-bottom:20px;touch-action:none}
+  
   .frame img{width:100%;height:100%;object-fit:contain;display:block;
-    filter:blur(40px) brightness(.55) contrast(.9) sepia(.25);
-    transition:filter .7s ease}
-  .frame img.clear{filter:none!important}
-  .hud{position:absolute;inset:auto 10px 10px auto;background:#000a;padding:6px 10px;border-radius:999px;font-weight:700;color:var(--gold);border:1px solid #ffffff22}
-  .box{margin-top:12px;display:flex;gap:8px}
-  input{flex:1;padding:14px;border-radius:12px;border:1px solid #2b2f36;background:#1a1f25;color:#fff;
-    -webkit-text-fill-color:#fff;caret-color:#fff;font-weight:700}
-  input::placeholder{color:#ffba4a}
-  button{padding:14px 16px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--accent),#9cd5a0);color:#0a2b0f;font-weight:800;cursor:pointer}
-  .fb{margin-top:10px;padding:10px;border-radius:10px;text-align:center;background:#131821;border:1px solid #242a33;min-height:42px}
-  .bar{margin-top:10px;display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
-  .bar div{aspect-ratio:1;border:1px solid #2b2f36;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800}
-  .bar .on{background:linear-gradient(135deg,var(--ok),#4ade80);color:#0a3614;border-color:var(--ok)}
-  .tip{margin-top:8px;font-size:12px;color:#cfcfcf;text-align:center}
+    filter:blur(40px) brightness(.5) contrast(.8) sepia(.3);
+    transition:filter .5s cubic-bezier(.34,.69,.62,1.09);will-change:filter}
+  .frame img.clear{filter:none!important;animation:glitch .6s ease-out}
+  
+  @keyframes glitch{
+    0%{transform:translate(-2px,2px);filter:blur(2px)}
+    20%{transform:translate(2px,-2px)}
+    40%{transform:translate(-1px,1px)}
+    60%{transform:translate(1px,-1px)}
+    80%{transform:translate(0,0)}
+    100%{transform:translate(0,0);filter:blur(0)}
+  }
+  
+  .hud{position:absolute;inset:12px 12px auto auto;background:rgba(0,0,0,.7);backdrop-filter:blur(10px);padding:8px 16px;border-radius:999px;font-weight:700;color:var(--gold);border:2px solid rgba(241,196,15,.4);font-size:13px;box-shadow:0 0 20px rgba(241,196,15,.2)}
+  
+  .voiles-count{display:inline-block;color:var(--ok);font-size:18px;margin:0 4px}
+  
+  .box{display:flex;gap:8px;margin-bottom:16px}
+  
+  input{flex:1;padding:16px;border-radius:14px;border:2px solid #86c08a44;background:#1a1f25;color:#fff;font-weight:700;font-size:16px;transition:all .3s ease;-webkit-text-fill-color:#fff;caret-color:var(--accent)}
+  
+  input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 20px rgba(134,192,138,.3);background:#222a2f}
+  
+  input::placeholder{color:#ffba4a99}
+  
+  button{padding:16px 24px;border-radius:14px;border:none;background:linear-gradient(135deg,var(--accent),#9cd5a0);color:#0a2b0f;font-weight:800;cursor:pointer;font-size:16px;transition:all .3s ease;box-shadow:0 4px 15px rgba(134,192,138,.3);text-transform:uppercase;letter-spacing:.5px}
+  
+  button:active{transform:scale(.95);box-shadow:0 2px 8px rgba(134,192,138,.2)}
+  
+  button:hover{box-shadow:0 6px 25px rgba(134,192,138,.5);transform:translateY(-2px)}
+  
+  .fb{margin-bottom:14px;padding:14px;border-radius:12px;text-align:center;background:rgba(19,24,33,.8);backdrop-filter:blur(8px);border:2px solid #242a3366;min-height:48px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;transition:all .4s ease;color:#cfcfcf}
+  
+  .fb.success{background:rgba(85,214,122,.1);border-color:var(--ok);color:var(--ok);animation:pulse-success .6s ease}
+  
+  .fb.error{background:rgba(255,71,87,.1);border-color:var(--danger);color:var(--danger);animation:pulse-error .4s ease}
+  
+  @keyframes pulse-success{0%{transform:scale(.95);opacity:.7}50%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+  @keyframes pulse-error{0%{transform:translateX(-5px)}20%{transform:translateX(5px)}40%{transform:translateX(-5px)}60%{transform:translateX(5px)}80%{transform:translateX(-2px)}100%{transform:translateX(0)}}
+  
+  .bar{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:20px}
+  
+  .bar div{aspect-ratio:1;border:2px solid #2b2f36;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;background:#0f1319;color:#666;transition:all .4s cubic-bezier(.34,.69,.62,1.09)}
+  
+  .bar .on{background:linear-gradient(135deg,var(--ok),#4ade80);color:#0a3614;border-color:var(--ok);box-shadow:0 0 15px rgba(85,214,122,.5);animation:unlock .5s ease}
+  
+  @keyframes unlock{0%{transform:scale(.5) rotateZ(-20deg);opacity:0}50%{transform:scale(1.15)}100%{transform:scale(1) rotateZ(0);opacity:1}}
+  
+  .tip{margin-bottom:12px;font-size:12px;color:#999;text-align:center;opacity:.8}
+  
+  .success-msg{display:none;text-align:center;padding:20px;margin:20px 0;border-radius:14px;background:linear-gradient(135deg,rgba(85,214,122,.15),rgba(134,192,138,.1));border:2px solid var(--ok);animation:fadeIn .6s ease}
+  
+  .success-msg.show{display:block}
+  
+  .success-msg h2{color:var(--ok);margin:0 0 8px 0;font-size:24px;text-transform:uppercase;letter-spacing:1px}
+  
+  .success-msg p{margin:0;color:#cfcfcf;font-size:14px}
+  
+  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  
+  .stars{position:fixed;width:100%;height:100%;top:0;left:0;pointer-events:none;z-index:0}
+  
+  .star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;opacity:0;animation:twinkle 3s infinite}
+  
+  @keyframes twinkle{0%{opacity:0}50%{opacity:.8}100%{opacity:0}}
+
+  @media(max-width:480px){
+    .wrap{padding:10px}
+    .frame{height:min(70vh,500px);border-radius:16px}
+    .hud{font-size:12px;padding:6px 12px}
+    input,button{padding:14px;font-size:15px;border-radius:12px}
+    .bar{gap:6px}
+    .bar div{font-size:12px}
+  }
 </style>
 </head>
 <body>
+
+<div class="stars" id="stars"></div>
+
 <div class="wrap">
   <div class="frame">
     <img id="img" src="./dracula_revelation.png" alt="Révélation">
-    <div class="hud">Voiles : <span id="left">5</span>/5</div>
+    <div class="hud">Voiles : <span class="voiles-count" id="left">5</span>/5</div>
   </div>
 
   <div class="box">
-    <input id="in" placeholder="Entrez un mot…">
+    <input id="in" placeholder="Entrez un mot…" autocomplete="off">
     <button id="go">Révéler</button>
   </div>
 
-  <div class="fb" id="fb">Clé 1/5</div>
+  <div class="fb" id="fb">🔑 Clé 1/5</div>
 
   <div class="bar" id="bar">
     <div>1</div><div>2</div><div>3</div><div>4</div><div>5</div>
   </div>
 
+  <div class="tip">Trouve les 5 mots cachés pour révéler le secret du manoir…</div>
+  
+  <div class="success-msg" id="success">
+    <h2>✨ Révélation Complète ✨</h2>
+    <p>Le voile s'est levé… Bravo!</p>
+  </div>
 </div>
 
 <script>
 (()=> {
   const KEYS = ['souffle','rire','trace','voile','ombre'];
-  let left = KEYS.length; // 5 -> 0
+  let left = KEYS.length;
 
   const img = document.getElementById('img');
   const fb  = document.getElementById('fb');
@@ -57,6 +131,18 @@
   const go  = document.getElementById('go');
   const inp = document.getElementById('in');
   const leftEl = document.getElementById('left');
+  const success = document.getElementById('success');
+
+  // Étoiles décoratives
+  const starsContainer = document.getElementById('stars');
+  for(let i=0;i<15;i++){
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.style.left = Math.random()*100+'%';
+    star.style.top = Math.random()*100+'%';
+    star.style.animationDelay = Math.random()*3+'s';
+    starsContainer.appendChild(star);
+  }
 
   update();
 
@@ -64,30 +150,54 @@
   inp.addEventListener('keydown', e => (e.key==='Enter') && tryWord());
 
   function tryWord(){
-    const v = norm(inp.value); inp.value = ''; inp.focus();
-    if(!v) return fb.textContent = 'Tapez un mot.';
+    const v = norm(inp.value);
+    inp.value = '';
+    inp.focus();
+    
+    if(!v){
+      showFeedback('Tapez un mot.', false);
+      return;
+    }
+    
     const idx = KEYS.length - left;
     const expect = KEYS[idx];
+    
     if(v === expect){
-      left--; bar[idx].classList.add('on');
-      fb.textContent = `Clé ${idx+1}/5 : ${expect}`;
+      left--;
+      bar[idx].classList.add('on');
+      showFeedback(`🔓 Clé ${idx+1}/5 : "${expect}"`, true);
+      
       if(left === 0){
-        img.classList.add('clear'); // image nette
-        fb.textContent = 'Révélation complète !';
+        img.classList.add('clear');
+        setTimeout(()=>{
+          fb.textContent = '✨ Révélation Complète ✨';
+          success.classList.add('show');
+          playConfetti();
+        }, 600);
       }
     } else {
-      fb.textContent = 'Mauvais mot. Relisez le message…';
+      showFeedback('❌ Mauvais mot. Relisez le message…', false);
     }
+    
     update();
-    // focus visuel sur l'image
     document.querySelector('.frame').scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  function showFeedback(msg, success){
+    fb.textContent = msg;
+    fb.classList.remove('error', 'success');
+    fb.classList.add(success ? 'success' : 'error');
   }
 
   function update(){
     leftEl.textContent = left;
-    if(left===0){ img.classList.add('clear'); }
-    else {
-      const blur = 8*left, b=0.55+(5-left)*0.08, c=0.9+(5-left)*0.03, s=Math.max(0,0.25-(5-left)*0.05);
+    if(left===0){
+      img.classList.add('clear');
+    } else {
+      const blur = 8*left;
+      const b = 0.5 + (5-left)*0.1;
+      const c = 0.8 + (5-left)*0.04;
+      const s = Math.max(0, 0.3 - (5-left)*0.06);
       img.style.filter = `blur(${blur}px) brightness(${b}) contrast(${c}) sepia(${s})`;
     }
   }
@@ -96,6 +206,31 @@
     return (s||'').toLowerCase().trim().replace(/\s+/g,'')
       .replace(/[àáâäãå]/g,'a').replace(/[èéêë]/g,'e').replace(/[ìíîï]/g,'i')
       .replace(/[òóôöõ]/g,'o').replace(/[ùúûü]/g,'u').replace(/ç/g,'c');
+  }
+
+  function playConfetti(){
+    for(let i=0;i<30;i++){
+      const confetti = document.createElement('div');
+      confetti.style.position = 'fixed';
+      confetti.style.left = Math.random()*100+'%';
+      confetti.style.top = '-10px';
+      confetti.style.width = '10px';
+      confetti.style.height = '10px';
+      confetti.style.background = ['#86c08a','#f1c40f','#55d67a'][Math.floor(Math.random()*3)];
+      confetti.style.borderRadius = '50%';
+      confetti.style.pointerEvents = 'none';
+      confetti.style.zIndex = '999';
+      document.body.appendChild(confetti);
+      
+      const x = (Math.random()-.5)*500;
+      const duration = 2 + Math.random()*1;
+      confetti.animate([
+        {transform:'translateY(0) translateX(0) rotate(0deg)',opacity:1},
+        {transform:`translateY(${window.innerHeight+20}px) translateX(${x}px) rotate(${Math.random()*360}deg)`,opacity:0}
+      ], {duration:duration*1000});
+      
+      setTimeout(()=>confetti.remove(), duration*1000);
+    }
   }
 })();
 </script>
