@@ -116,7 +116,7 @@
   
   <div class="success-msg" id="success">
     <h2>✨ Révélation Complète ✨</h2>
-    <p>Le voile s'est levé… Bravo!</p>
+    <p>Le voile s'est levé… Bienvenue dans le manoir!</p>
   </div>
 </div>
 
@@ -147,12 +147,17 @@
   update();
 
   go.addEventListener('click', tryWord);
-  inp.addEventListener('keydown', e => (e.key==='Enter') && tryWord());
+  inp.addEventListener('keydown', e => {
+    if(e.key==='Enter'){
+      e.preventDefault();
+      tryWord();
+    }
+  });
 
   function tryWord(){
     const v = norm(inp.value);
     inp.value = '';
-    inp.focus();
+    inp.blur();
     
     if(!v){
       showFeedback('Tapez un mot.', false);
