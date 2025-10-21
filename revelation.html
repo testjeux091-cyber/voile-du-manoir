@@ -1,243 +1,578 @@
 <!doctype html>
 <html lang="fr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Le Voile du Manoir</title>
 <style>
-  :root{--accent:#86c08a;--gold:#f1c40f;--ok:#55d67a;--danger:#ff4757}
-  *{box-sizing:border-box} html,body{margin:0;height:100%;background:#0a0e13;color:#eee;font:16px/1.4 system-ui,Segoe UI,Arial;overflow-x:hidden}
-  
-  body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle at 50% 50%,rgba(134,192,138,.05) 0%,transparent 70%);pointer-events:none;z-index:0}
-  
-  .wrap{max-width:520px;margin:0 auto;padding:12px;position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column}
-  
-  .frame{position:sticky;top:0;z-index:10;height:min(65vh,600px);border-radius:20px;overflow:hidden;background:#111;border:2px solid #86c08a44;box-shadow:0 0 40px rgba(134,192,138,.2);margin-bottom:20px;touch-action:none}
-  
-  .frame img{width:100%;height:100%;object-fit:contain;display:block;
-    filter:blur(40px) brightness(.5) contrast(.8) sepia(.3);
-    transition:filter .5s cubic-bezier(.34,.69,.62,1.09);will-change:filter}
-  .frame img.clear{filter:none!important;animation:glitch .6s ease-out}
-  
-  @keyframes glitch{
-    0%{transform:translate(-2px,2px);filter:blur(2px)}
-    20%{transform:translate(2px,-2px)}
-    40%{transform:translate(-1px,1px)}
-    60%{transform:translate(1px,-1px)}
-    80%{transform:translate(0,0)}
-    100%{transform:translate(0,0);filter:blur(0)}
+  :root{
+    --accent:#86c08a;
+    --gold:#f1c40f;
+    --text:#eee;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    height:100%;
+    margin:0;
+    font-family:system-ui,-apple-system,sans-serif;
+    background:linear-gradient(135deg,#0a0e27 0%,#1a1033 100%);
+    color:var(--text);
   }
   
-  .hud{position:absolute;inset:auto 12px 12px auto;background:rgba(0,0,0,.7);backdrop-filter:blur(10px);padding:8px 16px;border-radius:999px;font-weight:700;color:var(--gold);border:2px solid rgba(241,196,15,.4);font-size:13px;box-shadow:0 0 20px rgba(241,196,15,.2)}
+  .wrap{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:12px;
+    gap:12px;
+  }
   
-  .voiles-count{display:inline-block;color:var(--ok);font-size:18px;margin:0 4px}
+  .card{
+    width:100%;
+    max-width:600px;
+    background:rgba(20,20,35,0.8);
+    border:1px solid rgba(255,255,255,0.1);
+    border-radius:16px;
+    overflow:hidden;
+    backdrop-filter:blur(10px);
+  }
   
-  .box{display:flex;gap:8px;margin-bottom:16px}
+  .image-section{
+    position:relative;
+    width:100%;
+    aspect-ratio:1;
+    background:linear-gradient(180deg,rgba(0,0,0,0.5),rgba(0,0,0,0.8));
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    user-select:none;
+    -webkit-user-select:none;
+  }
   
-  input{flex:1;padding:16px;border-radius:14px;border:2px solid #86c08a44;background:#1a1f25;color:#fff;font-weight:700;font-size:16px;transition:all .3s ease;-webkit-text-fill-color:#fff;caret-color:var(--accent)}
+  .frame{
+    width:95%;
+    height:95%;
+    border-radius:12px;
+    overflow:hidden;
+    background:#000;
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border:1px solid rgba(255,255,255,0.2);
+  }
   
-  input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 20px rgba(134,192,138,.3);background:#222a2f}
+  .frame img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    filter:blur(40px) brightness(0.4) contrast(0.8);
+    transition:filter 600ms cubic-bezier(0.34,1.56,0.64,1);
+    cursor:grab;
+  }
   
-  input::placeholder{color:#ffba4a99}
+  .frame img:active{
+    cursor:grabbing;
+  }
   
-  button{padding:16px 24px;border-radius:14px;border:none;background:linear-gradient(135deg,var(--accent),#9cd5a0);color:#0a2b0f;font-weight:800;cursor:pointer;font-size:16px;transition:all .3s ease;box-shadow:0 4px 15px rgba(134,192,138,.3);text-transform:uppercase;letter-spacing:.5px}
+  .frame img.revealed{
+    filter:none!important;
+  }
   
-  button:active{transform:scale(.95);box-shadow:0 2px 8px rgba(134,192,138,.2)}
+  .veil-indicator{
+    position:absolute;
+    top:8px;
+    right:8px;
+    background:rgba(0,0,0,0.9);
+    padding:4px 10px;
+    border-radius:16px;
+    font-size:11px;
+    font-weight:600;
+    color:var(--gold);
+    border:1px solid rgba(241,196,15,0.5);
+  }
   
-  button:hover{box-shadow:0 6px 25px rgba(134,192,138,.5);transform:translateY(-2px)}
+  .completion-celebration{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%);
+    font-size:48px;
+    opacity:0;
+    pointer-events:none;
+    animation:celebrate 1.2s ease-out forwards;
+  }
   
-  .fb{margin-bottom:14px;padding:14px;border-radius:12px;text-align:center;background:rgba(19,24,33,.8);backdrop-filter:blur(8px);border:2px solid #242a3366;min-height:48px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;transition:all .4s ease;color:#cfcfcf}
+  @keyframes celebrate{
+    0%{opacity:1;transform:translate(-50%, -50%) scale(0.5)}
+    80%{opacity:1;transform:translate(-50%, -50%) scale(1.2)}
+    100%{opacity:0;transform:translate(-50%, -50%) scale(1)}
+  }
   
-  .fb.success{background:rgba(85,214,122,.1);border-color:var(--ok);color:var(--ok);animation:pulse-success .6s ease}
+  .content{
+    padding:16px;
+  }
   
-  .fb.error{background:rgba(255,71,87,.1);border-color:var(--danger);color:var(--danger);animation:pulse-error .4s ease}
+  h1{
+    margin:0 0 12px;
+    font-size:18px;
+    text-align:center;
+    color:var(--gold);
+  }
   
-  @keyframes pulse-success{0%{transform:scale(.95);opacity:.7}50%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
-  @keyframes pulse-error{0%{transform:translateX(-5px)}20%{transform:translateX(5px)}40%{transform:translateX(-5px)}60%{transform:translateX(5px)}80%{transform:translateX(-2px)}100%{transform:translateX(0)}}
+  .step-info{
+    text-align:center;
+    font-size:12px;
+    color:#aaa;
+    margin-bottom:12px;
+  }
   
-  .bar{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:20px}
+  .controls{
+    display:flex;
+    gap:8px;
+    margin-bottom:12px;
+  }
   
-  .bar div{aspect-ratio:1;border:2px solid #2b2f36;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;background:#0f1319;color:#666;transition:all .4s cubic-bezier(.34,.69,.62,1.09)}
+  input[type="text"]{
+    flex:1;
+    padding:12px 14px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,0.15);
+    background:rgba(255,255,255,0.05);
+    color:#fff;
+    font-size:14px;
+    outline:none;
+    transition:all 0.3s ease;
+    -webkit-text-fill-color: #ffffff;
+  }
   
-  .bar .on{background:linear-gradient(135deg,var(--ok),#4ade80);color:#0a3614;border-color:var(--ok);box-shadow:0 0 15px rgba(85,214,122,.5);animation:unlock .5s ease}
+  input::placeholder{
+    color:#ffba4a;
+  }
   
-  @keyframes unlock{0%{transform:scale(.5) rotateZ(-20deg);opacity:0}50%{transform:scale(1.15)}100%{transform:scale(1) rotateZ(0);opacity:1}}
+  input:focus{
+    border-color:var(--accent);
+    background:rgba(255,255,255,0.1);
+    box-shadow:0 0 0 2px rgba(134,192,138,0.2);
+  }
   
-  .tip{margin-bottom:12px;font-size:12px;color:#999;text-align:center;opacity:.8}
+  button{
+    padding:12px 20px;
+    border-radius:10px;
+    border:none;
+    background:linear-gradient(135deg,var(--accent),#9cd5a0);
+    color:#08270f;
+    font-weight:700;
+    cursor:pointer;
+    font-size:13px;
+    transition:all 0.3s ease;
+    white-space:nowrap;
+  }
   
-  .success-msg{display:none;text-align:center;padding:20px;margin:20px 0;border-radius:14px;background:linear-gradient(135deg,rgba(85,214,122,.15),rgba(134,192,138,.1));border:2px solid var(--ok);animation:fadeIn .6s ease}
+  button:hover{
+    transform:translateY(-2px);
+    box-shadow:0 4px 15px rgba(134,192,138,0.4);
+  }
   
-  .success-msg.show{display:block}
+  button:active{
+    transform:translateY(0) scale(0.98);
+  }
   
-  .success-msg h2{color:var(--ok);margin:0 0 8px 0;font-size:24px;text-transform:uppercase;letter-spacing:1px}
+  .feedback{
+    min-height:36px;
+    padding:8px 12px;
+    border-radius:8px;
+    font-size:12px;
+    text-align:center;
+    font-weight:500;
+    margin-bottom:12px;
+    transition:all 0.3s ease;
+    display:none;
+    align-items:center;
+    justify-content:center;
+  }
   
-  .success-msg p{margin:0;color:#cfcfcf;font-size:14px}
+  .ok{
+    color:#55d67a;
+    background:rgba(85,214,122,0.1);
+    border:1px solid rgba(85,214,122,0.3);
+  }
   
-  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  .warn{
+    color:#ffba4a;
+    background:rgba(255,186,74,0.1);
+    border:1px solid rgba(255,186,74,0.3);
+  }
   
-  .stars{position:fixed;width:100%;height:100%;top:0;left:0;pointer-events:none;z-index:0}
+  .err{
+    color:#ff6b6b;
+    background:rgba(255,107,107,0.1);
+    border:1px solid rgba(255,107,107,0.3);
+  }
   
-  .star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;opacity:0;animation:twinkle 3s infinite}
+  .progress-grid{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:6px;
+  }
   
-  @keyframes twinkle{0%{opacity:0}50%{opacity:.8}100%{opacity:0}}
-
-  @media(max-width:480px){
-    .wrap{padding:10px}
-    .frame{height:min(70vh,500px);border-radius:16px}
-    .hud{font-size:11px;padding:6px 10px}
-    input,button{padding:14px;font-size:15px;border-radius:12px}
-    .bar{gap:6px}
-    .bar div{font-size:12px}
-    .fb{padding:12px;font-size:13px;min-height:44px}
-    .tip{font-size:11px}
+  .progress-item{
+    aspect-ratio:1;
+    border:2px solid rgba(255,255,255,0.2);
+    border-radius:8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:600;
+    font-size:12px;
+    transition:all 0.4s cubic-bezier(0.4,0,0.2,1);
+    min-height:40px;
+  }
+  
+  .progress-item.completed{
+    background:linear-gradient(135deg,#55d67a,#4ade80);
+    border-color:#55d67a;
+    color:#0a3d14;
+    transform:scale(1.08);
+  }
+  
+  .progress-item.current{
+    border-color:var(--accent);
+    background:rgba(134,192,138,0.15);
+    transform:scale(1.05);
+    box-shadow:0 0 15px rgba(134,192,138,0.4);
+    animation:pulse 1.5s ease-in-out infinite;
+  }
+  
+  @keyframes pulse{
+    0%, 100%{box-shadow:0 0 15px rgba(134,192,138,0.4)}
+    50%{box-shadow:0 0 25px rgba(134,192,138,0.7)}
+  }
+  
+  .victory-msg{
+    display:none;
+    text-align:center;
+    padding:12px;
+    background:rgba(85,214,122,0.1);
+    border:2px solid #55d67a;
+    border-radius:10px;
+    color:#55d67a;
+    font-weight:700;
+    font-size:14px;
+    margin-bottom:12px;
+    animation:slideIn 0.5s ease-out;
+  }
+  
+  @keyframes slideIn{
+    from{opacity:0;transform:translateY(-10px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+  
+  .copy-hint{
+    display:none;
+    text-align:center;
+    font-size:11px;
+    color:#ffba4a;
+    margin-top:6px;
+  }
+  
+  .copy-hint.active{
+    display:block;
+  }
+  
+  .shake{
+    animation:shake 0.4s ease-in-out;
+  }
+  
+  @keyframes shake{
+    0%,100%{transform:translateX(0)}
+    25%{transform:translateX(-6px)}
+    75%{transform:translateX(6px)}
+  }
+  
+  @media (max-width:480px){
+    .wrap{
+      padding:8px;
+      gap:8px;
+    }
+    
+    .content{
+      padding:12px;
+    }
+    
+    h1{
+      font-size:16px;
+      margin-bottom:8px;
+    }
+    
+    .step-info{
+      font-size:11px;
+      margin-bottom:8px;
+    }
+    
+    input[type="text"]{
+      padding:10px 12px;
+      font-size:13px;
+    }
+    
+    button{
+      padding:10px 16px;
+      font-size:12px;
+    }
+    
+    .progress-grid{
+      gap:4px;
+    }
+    
+    .progress-item{
+      min-height:36px;
+      font-size:11px;
+    }
+    
+    .veil-indicator{
+      font-size:10px;
+      padding:3px 8px;
+    }
+  }
+  
+  :root, body {
+    color-scheme: dark;
   }
 </style>
 </head>
 <body>
+  <div class="wrap">
+    <div class="card" role="main">
+      <div class="image-section">
+        <div class="frame" id="frame">
+          <div class="veil-indicator">Voiles: <span id="stage">5/5</span></div>
+          <img id="revealImg" src="./dracula_revelation.png" alt="Photo mystère" />
+        </div>
+      </div>
 
-<div class="stars" id="stars"></div>
+      <div class="content">
+        <h1>🔮 Voile du Manoir</h1>
+        
+        <div id="feedback" class="feedback"></div>
+        
+        <div class="victory-msg" id="victoryMsg">✨ Tous les mots trouvés ! ✨</div>
+        
+        <div class="step-info" id="stepInfo">Clé 1/5</div>
 
-<div class="wrap">
-  <div class="frame">
-    <img id="img" src="./dracula_revelation.png" alt="Révélation">
-    <div class="hud">Voiles : <span class="voiles-count" id="left">5</span>/5</div>
+        <div class="controls">
+          <input id="pwd" autocomplete="off" spellcheck="false" placeholder="Votre réponse..." />
+          <button id="tryBtn">Révéler</button>
+        </div>
+        
+        <div class="copy-hint" id="copyHint">💡 Long-clic sur l'image pour la copier</div>
+        
+        <div class="progress-grid" id="progressGrid"></div>
+      </div>
+    </div>
   </div>
-
-  <div class="box">
-    <input id="in" placeholder="Entrez un mot…" autocomplete="off">
-    <button id="go">Révéler</button>
-  </div>
-
-  <div class="fb" id="fb">🔑 Clé 1/5</div>
-
-  <div class="bar" id="bar">
-    <div>1</div><div>2</div><div>3</div><div>4</div><div>5</div>
-  </div>
-
-  <div class="tip">Trouve les 5 mots cachés pour révéler le secret du manoir…</div>
-  
-  <div class="success-msg" id="success">
-    <h2>✨ Révélation Complète ✨</h2>
-    <p>Le voile s'est levé… Bienvenue dans le manoir!</p>
-  </div>
-</div>
 
 <script>
-(()=> {
-  const KEYS = ['souffle','rire','trace','voile','ombre'];
-  let left = KEYS.length;
+(function(){
+  const STEPS = [
+    { key:'souffle' },
+    { key:'rire' },
+    { key:'trace' },
+    { key:'voile' },
+    { key:'ombre' }
+  ];
 
-  const img = document.getElementById('img');
-  const fb  = document.getElementById('fb');
-  const bar = [...document.querySelectorAll('#bar div')];
-  const go  = document.getElementById('go');
-  const inp = document.getElementById('in');
-  const leftEl = document.getElementById('left');
-  const success = document.getElementById('success');
+  const MAX_STAGE = STEPS.length;
+  let stage = MAX_STAGE;
+  let longPressTimer;
+  
+  const img = document.getElementById('revealImg');
+  const stageLabel = document.getElementById('stage');
+  const feedback = document.getElementById('feedback');
+  const input = document.getElementById('pwd');
+  const tryBtn = document.getElementById('tryBtn');
+  const stepInfo = document.getElementById('stepInfo');
+  const progressGrid = document.getElementById('progressGrid');
+  const victoryMsg = document.getElementById('victoryMsg');
+  const copyHint = document.getElementById('copyHint');
+  const frame = document.getElementById('frame');
 
-  // Étoiles décoratives
-  const starsContainer = document.getElementById('stars');
-  for(let i=0;i<15;i++){
-    const star = document.createElement('div');
-    star.className = 'star';
-    star.style.left = Math.random()*100+'%';
-    star.style.top = Math.random()*100+'%';
-    star.style.animationDelay = Math.random()*3+'s';
-    starsContainer.appendChild(star);
+  const blurLevels = [0, 10, 20, 30, 40, 50];
+
+  init();
+
+  function init(){
+    for(let i = 0; i < STEPS.length; i++){
+      const item = document.createElement('div');
+      item.className = 'progress-item';
+      item.textContent = i + 1;
+      item.id = 'progress_' + i;
+      progressGrid.appendChild(item);
+    }
+    updateVisual();
+    updateUI();
+    input.focus();
+    
+    // Long press handling
+    img.addEventListener('mousedown', startLongPress);
+    img.addEventListener('touchstart', startLongPress);
+    img.addEventListener('mouseup', cancelLongPress);
+    img.addEventListener('touchend', cancelLongPress);
+    img.addEventListener('mouseleave', cancelLongPress);
+    img.addEventListener('touchcancel', cancelLongPress);
   }
 
-  update();
-
-  go.addEventListener('click', tryWord);
-  inp.addEventListener('keydown', e => {
-    if(e.key==='Enter'){
-      e.preventDefault();
-      tryWord();
-    }
+  tryBtn.addEventListener('click', onTry);
+  input.addEventListener('keydown', (e)=>{ 
+    if(e.key === 'Enter') onTry(); 
   });
 
-  function tryWord(){
-    const v = norm(inp.value);
-    inp.value = '';
-    inp.blur();
-    
-    if(!v){
-      showFeedback('Tapez un mot.', false);
+  function startLongPress(e){
+    longPressTimer = setTimeout(() => {
+      copyImageToClipboard();
+    }, 800);
+  }
+
+  function cancelLongPress(){
+    clearTimeout(longPressTimer);
+  }
+
+  async function copyImageToClipboard(){
+    try {
+      const response = await fetch(img.src);
+      const blob = await response.blob();
+      await navigator.clipboard.write([
+        new ClipboardItem({ 'image/png': blob })
+      ]);
+      showFeedback('✅ Image copiée !', 'ok');
+    } catch(err){
+      showFeedback('❌ Erreur lors de la copie', 'err');
+    }
+  }
+
+  img.addEventListener('error', ()=>{
+    const warn = document.createElement('div');
+    warn.style.cssText = "position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#1a1a1a;color:#fff;font-size:13px;text-align:center;padding:20px;border-radius:12px";
+    warn.innerHTML = "⚠️ Image non trouvée<br>Placez 'dracula_revelation.png' ici";
+    frame.appendChild(warn);
+  });
+
+  function onTry(){
+    const val = normalize(input.value);
+    input.value = '';
+
+    const expectedIndex = STEPS.length - stage;
+    const expected = STEPS[expectedIndex]?.key;
+
+    if(!val){
+      showFeedback('Entrez votre réponse !', 'warn');
       return;
     }
-    
-    const idx = KEYS.length - left;
-    const expect = KEYS[idx];
-    
-    if(v === expect){
-      left--;
-      bar[idx].classList.add('on');
-      showFeedback(`🔓 Clé ${idx+1}/5 : "${expect}"`, true);
-      
-      if(left === 0){
-        img.classList.add('clear');
-        setTimeout(()=>{
-          fb.textContent = '✨ Révélation Complète ✨';
-          success.classList.add('show');
-          playConfetti();
-        }, 600);
+
+    if(!expected){
+      showFeedback('Jeu terminé ! 🎉', 'ok');
+      return;
+    }
+
+    if(val === expected){
+      markCompleted(expectedIndex);
+      if(stage > 0) stage--;
+      updateVisual();
+      updateUI();
+
+      if(stage === 0){
+        victoryMsg.style.display = 'block';
+        copyHint.classList.add('active');
+        addCelebration();
+        img.classList.add('revealed');
+      } else {
+        const remaining = stage;
+        showFeedback(`"${expected}" ✓ | ${remaining} voile${remaining > 1 ? 's' : ''} restant${remaining > 1 ? 's' : ''}`, 'ok');
+        setTimeout(() => input.focus(), 300);
       }
     } else {
-      showFeedback('❌ Mauvais mot. Relisez le message…', false);
+      showFeedback('Pas le bon mot... Cherchez !', 'err');
+      document.querySelector('.card').classList.add('shake');
+      setTimeout(() => {
+        document.querySelector('.card').classList.remove('shake');
+      }, 400);
+    }
+  }
+
+  function addCelebration(){
+    const emojis = ['🎉', '✨', '🎊', '👏'];
+    for(let i = 0; i < 4; i++){
+      const el = document.createElement('div');
+      el.className = 'completion-celebration';
+      el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      el.style.left = (20 + Math.random() * 60) + '%';
+      el.style.top = (30 + Math.random() * 40) + '%';
+      frame.appendChild(el);
+      setTimeout(() => el.remove(), 1200);
+    }
+  }
+
+  function showFeedback(msg, type){
+    feedback.textContent = msg;
+    feedback.className = 'feedback ' + type;
+    feedback.style.display = 'flex';
+    setTimeout(() => {
+      feedback.style.display = 'none';
+    }, 3500);
+  }
+
+  function markCompleted(index){
+    const item = document.getElementById('progress_' + index);
+    if(item){
+      item.classList.add('completed');
+      item.textContent = '✓';
+    }
+  }
+
+  function updateVisual(){
+    if(stage < 0) stage = 0;
+    if(stage > MAX_STAGE) stage = MAX_STAGE;
+    
+    if(stage === 0){
+      img.classList.add('revealed');
+    } else {
+      img.classList.remove('revealed');
+      const blur = blurLevels[stage] ?? 0;
+      const brightness = Math.max(0.3, 0.2 + (stage / MAX_STAGE) * 1.2);
+      const contrast = 0.7 + (stage / MAX_STAGE) * 0.3;
+      
+      img.style.filter = `blur(${blur}px) brightness(${brightness}) contrast(${contrast})`;
     }
     
-    update();
-    document.querySelector('.frame').scrollIntoView({behavior:'smooth', block:'start'});
+    stageLabel.textContent = `${stage}/${MAX_STAGE}`;
   }
 
-  function showFeedback(msg, success){
-    fb.textContent = msg;
-    fb.classList.remove('error', 'success');
-    fb.classList.add(success ? 'success' : 'error');
-  }
-
-  function update(){
-    leftEl.textContent = left;
-    if(left===0){
-      img.classList.add('clear');
+  function updateUI(){
+    const nextIndex = STEPS.length - stage;
+    
+    if(stage === 0){
+      stepInfo.textContent = 'Challenge terminé !';
     } else {
-      const blur = 8*left;
-      const b = 0.5 + (5-left)*0.1;
-      const c = 0.8 + (5-left)*0.04;
-      const s = Math.max(0, 0.3 - (5-left)*0.06);
-      img.style.filter = `blur(${blur}px) brightness(${b}) contrast(${c}) sepia(${s})`;
+      stepInfo.textContent = `Clé ${nextIndex + 1}/${STEPS.length}`;
+    }
+    
+    for(let i = 0; i < STEPS.length; i++){
+      const item = document.getElementById('progress_' + i);
+      if(!item) continue;
+      
+      item.classList.remove('current');
+      if(i === nextIndex && stage > 0){
+        item.classList.add('current');
+      }
     }
   }
 
-  function norm(s){
+  function normalize(s){
     return (s||'').toLowerCase().trim().replace(/\s+/g,'')
-      .replace(/[àáâäãå]/g,'a').replace(/[èéêë]/g,'e').replace(/[ìíîï]/g,'i')
-      .replace(/[òóôöõ]/g,'o').replace(/[ùúûü]/g,'u').replace(/ç/g,'c');
-  }
-
-  function playConfetti(){
-    for(let i=0;i<30;i++){
-      const confetti = document.createElement('div');
-      confetti.style.position = 'fixed';
-      confetti.style.left = Math.random()*100+'%';
-      confetti.style.top = '-10px';
-      confetti.style.width = '10px';
-      confetti.style.height = '10px';
-      confetti.style.background = ['#86c08a','#f1c40f','#55d67a'][Math.floor(Math.random()*3)];
-      confetti.style.borderRadius = '50%';
-      confetti.style.pointerEvents = 'none';
-      confetti.style.zIndex = '999';
-      document.body.appendChild(confetti);
-      
-      const x = (Math.random()-.5)*500;
-      const duration = 2 + Math.random()*1;
-      confetti.animate([
-        {transform:'translateY(0) translateX(0) rotate(0deg)',opacity:1},
-        {transform:`translateY(${window.innerHeight+20}px) translateX(${x}px) rotate(${Math.random()*360}deg)`,opacity:0}
-      ], {duration:duration*1000});
-      
-      setTimeout(()=>confetti.remove(), duration*1000);
-    }
+      .replace(/[àáâäãå]/g,'a').replace(/[èéêë]/g,'e')
+      .replace(/[ìíîï]/g,'i').replace(/[òóôöõ]/g,'o')
+      .replace(/[ùúûü]/g,'u').replace(/[ç]/g,'c').replace(/[ñ]/g,'n');
   }
 })();
 </script>
