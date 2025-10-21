@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Le Voile du Manoir</title>
+<style>
+  :root{
+    --accent:#86c08a;
+    --gold:#f1c40f;
+    --text:#eee;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    height:100%;
+    margin:0;
+    font-family:system-ui,-apple-system,sans-serif;
+    background:linear-gradient(135deg,#0a0e27 0%,#1a1033 100%);
+    color:var(--text);
+  }
+  
+  .wrap{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:16px;
+    gap:16px;
+  }
+  
+  .card{
+    width:100%;
+    max-width:500px;
+    background:rgba(20,20,35,0.8);
+    border:1px solid rgba(255,255,255,0.1);
+    border-radius:20px;
+    overflow:hidden;
+    backdrop-filter:blur(10px);
+  }
+  
+  .image-section{
+    position:relative;
+    width:100%;
+    aspect-ratio:1;
+    background:linear-gradient(180deg,rgba(0,0,0,0.5),rgba(0,0,0,0.8));
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  
+  .frame{
+    width:95%;
+    height:95%;
+    border-radius:12px;
+    overflow:hidden;
+    background:#000;
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border:1px solid rgba(255,255,255,0.2);
+  }
+  
+  .frame img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    filter:blur(30px) brightness(0.5) contrast(0.9);
+    transition:filter 800ms ease-out;
+  }
+  
+  .frame img.revealed{
+    filter:none!important;
+  }
+  
+  .veil-counter{
+    position:absolute;
+    top:12px;
+    right:12px;
+    background:rgba(0,0,0,0.9);
+    padding:6px 12px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:600;
+    color:var(--gold);
+    border:1px solid rgba(241,196,15,0.5);
+  }
+  
+  .content{
+    padding:20px;
+  }
+  
+  h1{
+    margin:0 0 8px;
+    font-size:20px;
+    text-align:center;
+    color:var(--gold);
+  }
+  
+  .step-info{
+    text-align:center;
+    font-size:13px;
+    color:#aaa;
+    margin-bottom:16px;
+  }
+  
+  .controls{
+    display:flex;
+    gap:8px;
+    margin-bottom:12px;
+  }
+  
+  input[type="text"]{
+    flex:1;
+    padding:14px 16px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,0.15);
+    background:rgba(255,255,255,0.05);
+    color:var(--text);
+    font-size:15px;
+    outline:none;
+    transition:all 0.3s ease;
+  }
+  input::placeholder{
+  color:#ffba4a;  ← COULEUR DU PLACEHOLDER
+}
+  input:focus{
+    border-color:var(--accent);
+    background:rgba(255,255,255,0.1);
+    box-shadow:0 0 0 2px rgba(134,192,138,0.2);
+  }
+  
+  button{
+    padding:14px 24px;
+    border-radius:12px;
+    border:none;
+    background:linear-gradient(135deg,var(--accent),#9cd5a0);
+    color:#08270f;
+    font-weight:700;
+    cursor:pointer;
+    font-size:14px;
+    transition:all 0.3s ease;
+  }
+  
+  button:hover{
+    transform:translateY(-2px);
+    box-shadow:0 4px 15px rgba(134,192,138,0.4);
+  }
+  
+  button:active{
+    transform:translateY(0) scale(0.98);
+  }
+  
+  .feedback{
+    min-height:40px;
+    padding:10px;
+    border-radius:10px;
+    font-size:13px;
+    text-align:center;
+    font-weight:500;
+    margin-bottom:12px;
+    transition:all 0.3s ease;
+  }
+  
+  .ok{
+    color:#55d67a;
+    background:rgba(85,214,122,0.1);
+    border:1px solid rgba(85,214,122,0.3);
+  }
+  
+  .warn{
+    color:#ffba4a;
+    background:rgba(255,186,74,0.1);
+    border:1px solid rgba(255,186,74,0.3);
+  }
+  
+  .err{
+    color:#ff6b6b;
+    background:rgba(255,107,107,0.1);
+    border:1px solid rgba(255,107,107,0.3);
+  }
+  
+  .progress-grid{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:8px;
+  }
+  
+  .progress-item{
+    aspect-ratio:1;
+    border:2px solid rgba(255,255,255,0.2);
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:600;
+    font-size:13px;
+    transition:all 0.4s cubic-bezier(0.4,0,0.2,1);
+  }
+  
+  .progress-item.completed{
+    background:linear-gradient(135deg,#55d67a,#4ade80);
+    border-color:#55d67a;
+    color:#0a3d14;
+    transform:scale(1.08);
+  }
+  
+  .progress-item.current{
+    border-color:var(--accent);
+    background:rgba(134,192,138,0.15);
+    transform:scale(1.05);
+    box-shadow:0 0 15px rgba(134,192,138,0.4);
+  }
+  
+  .overlay-final{
+    position:absolute;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,0.4) 60%,rgba(0,0,0,0.9));
+    color:#fff;
+    text-align:center;
+    padding:20px;
+  }
+  
+  .overlay-final .title{
+    font-size:28px;
+    font-weight:700;
+    color:var(--gold);
+    text-shadow:0 2px 10px rgba(241,196,15,0.5);
+    margin-bottom:16px;
+  }
+  
+  .overlay-final .download{
+    padding:12px 20px;
+    border-radius:10px;
+    background:linear-gradient(135deg,var(--accent),#9cd5a0);
+    color:#08270f;
+    font-weight:700;
+    border:none;
+    cursor:pointer;
+    font-size:14px;
+    transition:all 0.3s ease;
+  }
+  
+  .overlay-final .download:hover{
+    transform:translateY(-2px);
+  }
+  
+  .shake{
+    animation:shake 0.4s ease-in-out;
+  }
+  
+  @keyframes shake{
+    0%,100%{transform:translateX(0)}
+    25%{transform:translateX(-8px)}
+    75%{transform:translateX(8px)}
+  }
+  
+  @media (hover:none){
+    button,input{min-height:48px}
+  }
+  /* --- Forcer l'écriture en BLANC dans le champ, tout le temps --- */
+input[type="text"],
+input[type="search"],
+input[type="text"]:focus,
+input[type="search"]:focus {
+  color: #ffffff !important;     /* texte blanc */
+  caret-color: #ffffff !important;/* curseur blanc */
+  background: rgba(255,255,255,0.08) !important; /* fond sombre lisible au focus */
+  -webkit-text-fill-color: #ffffff !important;   /* Safari/Chrome */
+}
+
+/* Placeholder lisible mais discret (orange pâle) */
+input::placeholder {
+  color: #ffba4a !important;
+  opacity: 0.9;
+}
+
+/* Cas "autofill" (suggestions/auto-complétion Safari/Chrome) */
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #ffffff !important;   /* texte blanc */
+  caret-color: #ffffff !important;
+  transition: background-color 9999s ease-in-out 0s !important; /* évite l'overlay jaune */
+  box-shadow: 0 0 0px 1000px rgba(255,255,255,0.08) inset !important; /* garde un fond sombre */
+}
+
+/* Indique au navigateur qu'on est en thème sombre (iOS/Android) */
+:root, body {
+  color-scheme: dark;
+}
+
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card" role="main">
+      <div class="image-section">
+        <div class="frame">
+          <div class="veil-counter">Voiles: <span id="stage">5/5</span></div>
+          <img id="revealImg" src="./dracula_revelation.png" alt="Photo mystère" />
+          <div class="overlay-final" id="finalOverlay" aria-hidden="true">
+            <div>
+              <div class="title">🎉 Révélé !</div>
+              <button class="download" id="dlBtn">📥 Télécharger</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <h1>🔮 Voile du Manoir</h1>
+        
+        <div id="feedback" class="feedback" style="display:none"></div>
+        
+        <div class="step-info" id="stepInfo">Clé 1/5</div>
+
+        <div class="controls">
+          <input id="pwd" autocomplete="off" spellcheck="false" placeholder="Votre réponse..." />
+          <button id="tryBtn">Révéler</button>
+        </div>
+        
+        <div class="progress-grid" id="progressGrid"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const STEPS = [
+    { key:'souffle' },
+    { key:'rire' },
+    { key:'trace' },
+    { key:'voile' },
+    { key:'ombre' }
+  ];
+
+  const MAX_STAGE = STEPS.length;
+  let stage = MAX_STAGE;
+  
+  const img = document.getElementById('revealImg');
+  const stageLabel = document.getElementById('stage');
+  const feedback = document.getElementById('feedback');
+  const input = document.getElementById('pwd');
+  const tryBtn = document.getElementById('tryBtn');
+  const overlay = document.getElementById('finalOverlay');
+  const dlBtn = document.getElementById('dlBtn');
+  const stepInfo = document.getElementById('stepInfo');
+  const progressGrid = document.getElementById('progressGrid');
+
+  const blurLevels = [0, 8, 16, 24, 32, 40];
+
+  init();
+
+  function init(){
+    for(let i = 0; i < STEPS.length; i++){
+      const item = document.createElement('div');
+      item.className = 'progress-item';
+      item.textContent = i + 1;
+      item.id = 'progress_' + i;
+      progressGrid.appendChild(item);
+    }
+    updateVisual();
+    updateUI();
+    input.focus();
+  }
+
+  tryBtn.addEventListener('click', onTry);
+  input.addEventListener('keydown', (e)=>{ 
+    if(e.key === 'Enter') onTry(); 
+  });
+
+  dlBtn.addEventListener('click', ()=>{
+    const a = document.createElement('a');
+    a.href = img.currentSrc || img.src;
+    a.download = 'photo_revelée.png';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    dlBtn.textContent = '✅ Téléchargé !';
+    setTimeout(() => {
+      dlBtn.textContent = '📥 Télécharger';
+    }, 2000);
+  });
+
+  img.addEventListener('error', ()=>{
+    const warn = document.createElement('div');
+    warn.style.cssText = "position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#1a1a1a;color:#fff;font-size:13px;text-align:center;padding:20px;border-radius:12px";
+    warn.innerHTML = "⚠️ Image non trouvée<br>Placez 'dracula_revelation.png' ici";
+    img.closest('.frame').appendChild(warn);
+  });
+
+  function onTry(){
+    const val = normalize(input.value);
+    input.value = '';
+
+    const expectedIndex = STEPS.length - stage;
+    const expected = STEPS[expectedIndex]?.key;
+
+    if(!val){
+      showFeedback('Entrez votre réponse !', 'warn');
+      return;
+    }
+
+    if(!expected){
+      showFeedback('Jeu terminé ! 🎉', 'ok');
+      return;
+    }
+
+    if(val === expected){
+      markCompleted(expectedIndex);
+      if(stage > 0) stage--;
+      updateVisual();
+      updateUI();
+
+      if(stage === 0){
+        showFeedback('✨ Tous les mots trouvés ! ✨', 'ok');
+        overlay.style.display = 'flex';
+        img.classList.add('revealed');
+      } else {
+        const remaining = stage;
+        showFeedback(`"${expected}" ✓ | ${remaining} voile${remaining > 1 ? 's' : ''} restant${remaining > 1 ? 's' : ''}`, 'ok');
+        setTimeout(() => input.focus(), 300);
+      }
+    } else {
+      showFeedback('Pas le bon mot... Cherchez dans le texte !', 'err');
+      document.querySelector('.card').classList.add('shake');
+      setTimeout(() => {
+        document.querySelector('.card').classList.remove('shake');
+      }, 400);
+    }
+  }
+
+  function showFeedback(msg, type){
+    feedback.textContent = msg;
+    feedback.className = 'feedback ' + type;
+    feedback.style.display = 'block';
+    setTimeout(() => {
+      feedback.style.display = 'none';
+    }, 4000);
+  }
+
+  function markCompleted(index){
+    const item = document.getElementById('progress_' + index);
+    if(item){
+      item.classList.add('completed');
+      item.textContent = '✓';
+    }
+  }
+
+  function updateVisual(){
+    if(stage < 0) stage = 0;
+    if(stage > MAX_STAGE) stage = MAX_STAGE;
+    
+    if(stage === 0){
+      img.classList.add('revealed');
+    } else {
+      img.classList.remove('revealed');
+      const blur = blurLevels[stage] ?? 0;
+      const bright = 0.5 + (MAX_STAGE - stage) * 0.12;
+      const contrast = 0.9 + (MAX_STAGE - stage) * 0.05;
+      const sepia = Math.max(0, 0.3 - (MAX_STAGE - stage) * 0.06);
+      
+      img.style.filter = `blur(${blur}px) brightness(${bright}) contrast(${contrast}) sepia(${sepia})`;
+    }
+    
+    stageLabel.textContent = `${stage}/${MAX_STAGE}`;
+    overlay.style.display = (stage === 0) ? 'flex' : 'none';
+  }
+
+  function updateUI(){
+    const nextIndex = STEPS.length - stage;
+    
+    if(stage === 0){
+      document.querySelector('.step-info').textContent = 'Challenge terminé !';
+    } else {
+      stepInfo.textContent = `Clé ${nextIndex + 1}/${STEPS.length}`;
+    }
+    
+    for(let i = 0; i < STEPS.length; i++){
+      const item = document.getElementById('progress_' + i);
+      if(!item) continue;
+      
+      item.classList.remove('current');
+      if(i === nextIndex && stage > 0){
+        item.classList.add('current');
+      }
+    }
+  }
+
+  function normalize(s){
+    return (s||'').toLowerCase().trim().replace(/\s+/g,'')
+      .replace(/[àáâäãå]/g,'a').replace(/[èéêë]/g,'e')
+      .replace(/[ìíîï]/g,'i').replace(/[òóôöõ]/g,'o')
+      .replace(/[ùúûü]/g,'u').replace(/[ç]/g,'c').replace(/[ñ]/g,'n');
+  }
+})();
+</script>
+</body>
+</html>
