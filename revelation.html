@@ -1,578 +1,101 @@
 <!doctype html>
 <html lang="fr">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Le Voile du Manoir</title>
 <style>
-  :root{
-    --accent:#86c08a;
-    --gold:#f1c40f;
-    --text:#eee;
-  }
-  *{box-sizing:border-box}
-  html,body{
-    height:100%;
-    margin:0;
-    font-family:system-ui,-apple-system,sans-serif;
-    background:linear-gradient(135deg,#0a0e27 0%,#1a1033 100%);
-    color:var(--text);
-  }
-  
-  .wrap{
-    min-height:100vh;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    padding:12px;
-    gap:12px;
-  }
-  
-  .card{
-    width:100%;
-    max-width:600px;
-    background:rgba(20,20,35,0.8);
-    border:1px solid rgba(255,255,255,0.1);
-    border-radius:16px;
-    overflow:hidden;
-    backdrop-filter:blur(10px);
-  }
-  
-  .image-section{
-    position:relative;
-    width:100%;
-    aspect-ratio:1;
-    background:linear-gradient(180deg,rgba(0,0,0,0.5),rgba(0,0,0,0.8));
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    user-select:none;
-    -webkit-user-select:none;
-  }
-  
-  .frame{
-    width:95%;
-    height:95%;
-    border-radius:12px;
-    overflow:hidden;
-    background:#000;
-    position:relative;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border:1px solid rgba(255,255,255,0.2);
-  }
-  
-  .frame img{
-    width:100%;
-    height:100%;
-    object-fit:contain;
-    filter:blur(40px) brightness(0.4) contrast(0.8);
-    transition:filter 600ms cubic-bezier(0.34,1.56,0.64,1);
-    cursor:grab;
-  }
-  
-  .frame img:active{
-    cursor:grabbing;
-  }
-  
-  .frame img.revealed{
-    filter:none!important;
-  }
-  
-  .veil-indicator{
-    position:absolute;
-    top:8px;
-    right:8px;
-    background:rgba(0,0,0,0.9);
-    padding:4px 10px;
-    border-radius:16px;
-    font-size:11px;
-    font-weight:600;
-    color:var(--gold);
-    border:1px solid rgba(241,196,15,0.5);
-  }
-  
-  .completion-celebration{
-    position:absolute;
-    top:50%;
-    left:50%;
-    transform:translate(-50%, -50%);
-    font-size:48px;
-    opacity:0;
-    pointer-events:none;
-    animation:celebrate 1.2s ease-out forwards;
-  }
-  
-  @keyframes celebrate{
-    0%{opacity:1;transform:translate(-50%, -50%) scale(0.5)}
-    80%{opacity:1;transform:translate(-50%, -50%) scale(1.2)}
-    100%{opacity:0;transform:translate(-50%, -50%) scale(1)}
-  }
-  
-  .content{
-    padding:16px;
-  }
-  
-  h1{
-    margin:0 0 12px;
-    font-size:18px;
-    text-align:center;
-    color:var(--gold);
-  }
-  
-  .step-info{
-    text-align:center;
-    font-size:12px;
-    color:#aaa;
-    margin-bottom:12px;
-  }
-  
-  .controls{
-    display:flex;
-    gap:8px;
-    margin-bottom:12px;
-  }
-  
-  input[type="text"]{
-    flex:1;
-    padding:12px 14px;
-    border-radius:10px;
-    border:1px solid rgba(255,255,255,0.15);
-    background:rgba(255,255,255,0.05);
-    color:#fff;
-    font-size:14px;
-    outline:none;
-    transition:all 0.3s ease;
-    -webkit-text-fill-color: #ffffff;
-  }
-  
-  input::placeholder{
-    color:#ffba4a;
-  }
-  
-  input:focus{
-    border-color:var(--accent);
-    background:rgba(255,255,255,0.1);
-    box-shadow:0 0 0 2px rgba(134,192,138,0.2);
-  }
-  
-  button{
-    padding:12px 20px;
-    border-radius:10px;
-    border:none;
-    background:linear-gradient(135deg,var(--accent),#9cd5a0);
-    color:#08270f;
-    font-weight:700;
-    cursor:pointer;
-    font-size:13px;
-    transition:all 0.3s ease;
-    white-space:nowrap;
-  }
-  
-  button:hover{
-    transform:translateY(-2px);
-    box-shadow:0 4px 15px rgba(134,192,138,0.4);
-  }
-  
-  button:active{
-    transform:translateY(0) scale(0.98);
-  }
-  
-  .feedback{
-    min-height:36px;
-    padding:8px 12px;
-    border-radius:8px;
-    font-size:12px;
-    text-align:center;
-    font-weight:500;
-    margin-bottom:12px;
-    transition:all 0.3s ease;
-    display:none;
-    align-items:center;
-    justify-content:center;
-  }
-  
-  .ok{
-    color:#55d67a;
-    background:rgba(85,214,122,0.1);
-    border:1px solid rgba(85,214,122,0.3);
-  }
-  
-  .warn{
-    color:#ffba4a;
-    background:rgba(255,186,74,0.1);
-    border:1px solid rgba(255,186,74,0.3);
-  }
-  
-  .err{
-    color:#ff6b6b;
-    background:rgba(255,107,107,0.1);
-    border:1px solid rgba(255,107,107,0.3);
-  }
-  
-  .progress-grid{
-    display:grid;
-    grid-template-columns:repeat(5,1fr);
-    gap:6px;
-  }
-  
-  .progress-item{
-    aspect-ratio:1;
-    border:2px solid rgba(255,255,255,0.2);
-    border-radius:8px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-weight:600;
-    font-size:12px;
-    transition:all 0.4s cubic-bezier(0.4,0,0.2,1);
-    min-height:40px;
-  }
-  
-  .progress-item.completed{
-    background:linear-gradient(135deg,#55d67a,#4ade80);
-    border-color:#55d67a;
-    color:#0a3d14;
-    transform:scale(1.08);
-  }
-  
-  .progress-item.current{
-    border-color:var(--accent);
-    background:rgba(134,192,138,0.15);
-    transform:scale(1.05);
-    box-shadow:0 0 15px rgba(134,192,138,0.4);
-    animation:pulse 1.5s ease-in-out infinite;
-  }
-  
-  @keyframes pulse{
-    0%, 100%{box-shadow:0 0 15px rgba(134,192,138,0.4)}
-    50%{box-shadow:0 0 25px rgba(134,192,138,0.7)}
-  }
-  
-  .victory-msg{
-    display:none;
-    text-align:center;
-    padding:12px;
-    background:rgba(85,214,122,0.1);
-    border:2px solid #55d67a;
-    border-radius:10px;
-    color:#55d67a;
-    font-weight:700;
-    font-size:14px;
-    margin-bottom:12px;
-    animation:slideIn 0.5s ease-out;
-  }
-  
-  @keyframes slideIn{
-    from{opacity:0;transform:translateY(-10px)}
-    to{opacity:1;transform:translateY(0)}
-  }
-  
-  .copy-hint{
-    display:none;
-    text-align:center;
-    font-size:11px;
-    color:#ffba4a;
-    margin-top:6px;
-  }
-  
-  .copy-hint.active{
-    display:block;
-  }
-  
-  .shake{
-    animation:shake 0.4s ease-in-out;
-  }
-  
-  @keyframes shake{
-    0%,100%{transform:translateX(0)}
-    25%{transform:translateX(-6px)}
-    75%{transform:translateX(6px)}
-  }
-  
-  @media (max-width:480px){
-    .wrap{
-      padding:8px;
-      gap:8px;
-    }
-    
-    .content{
-      padding:12px;
-    }
-    
-    h1{
-      font-size:16px;
-      margin-bottom:8px;
-    }
-    
-    .step-info{
-      font-size:11px;
-      margin-bottom:8px;
-    }
-    
-    input[type="text"]{
-      padding:10px 12px;
-      font-size:13px;
-    }
-    
-    button{
-      padding:10px 16px;
-      font-size:12px;
-    }
-    
-    .progress-grid{
-      gap:4px;
-    }
-    
-    .progress-item{
-      min-height:36px;
-      font-size:11px;
-    }
-    
-    .veil-indicator{
-      font-size:10px;
-      padding:3px 8px;
-    }
-  }
-  
-  :root, body {
-    color-scheme: dark;
-  }
+  :root{--accent:#86c08a;--gold:#f1c40f;--ok:#55d67a}
+  *{box-sizing:border-box} html,body{margin:0;height:100%;background:#0d0f13;color:#eee;font:16px/1.4 system-ui,Segoe UI,Arial}
+  .wrap{max-width:520px;margin:0 auto;padding:12px}
+  .frame{position:sticky;top:0;z-index:1;height:min(62vh,560px);border-radius:14px;overflow:hidden;background:#111;border:1px solid #222}
+  .frame img{width:100%;height:100%;object-fit:contain;display:block;
+    filter:blur(40px) brightness(.55) contrast(.9) sepia(.25);
+    transition:filter .7s ease}
+  .frame img.clear{filter:none!important}
+  .hud{position:absolute;inset:auto 10px 10px auto;background:#000a;padding:6px 10px;border-radius:999px;font-weight:700;color:var(--gold);border:1px solid #ffffff22}
+  .box{margin-top:12px;display:flex;gap:8px}
+  input{flex:1;padding:14px;border-radius:12px;border:1px solid #2b2f36;background:#1a1f25;color:#fff;
+    -webkit-text-fill-color:#fff;caret-color:#fff;font-weight:700}
+  input::placeholder{color:#ffba4a}
+  button{padding:14px 16px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--accent),#9cd5a0);color:#0a2b0f;font-weight:800;cursor:pointer}
+  .fb{margin-top:10px;padding:10px;border-radius:10px;text-align:center;background:#131821;border:1px solid #242a33;min-height:42px}
+  .bar{margin-top:10px;display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+  .bar div{aspect-ratio:1;border:1px solid #2b2f36;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800}
+  .bar .on{background:linear-gradient(135deg,var(--ok),#4ade80);color:#0a3614;border-color:var(--ok)}
+  .tip{margin-top:8px;font-size:12px;color:#cfcfcf;text-align:center}
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card" role="main">
-      <div class="image-section">
-        <div class="frame" id="frame">
-          <div class="veil-indicator">Voiles: <span id="stage">5/5</span></div>
-          <img id="revealImg" src="./dracula_revelation.png" alt="Photo mystère" />
-        </div>
-      </div>
-
-      <div class="content">
-        <h1>🔮 Voile du Manoir</h1>
-        
-        <div id="feedback" class="feedback"></div>
-        
-        <div class="victory-msg" id="victoryMsg">✨ Tous les mots trouvés ! ✨</div>
-        
-        <div class="step-info" id="stepInfo">Clé 1/5</div>
-
-        <div class="controls">
-          <input id="pwd" autocomplete="off" spellcheck="false" placeholder="Votre réponse..." />
-          <button id="tryBtn">Révéler</button>
-        </div>
-        
-        <div class="copy-hint" id="copyHint">💡 Long-clic sur l'image pour la copier</div>
-        
-        <div class="progress-grid" id="progressGrid"></div>
-      </div>
-    </div>
+<div class="wrap">
+  <div class="frame">
+    <img id="img" src="./dracula_revelation.png" alt="Révélation">
+    <div class="hud">Voiles : <span id="left">5</span>/5</div>
   </div>
 
+  <div class="box">
+    <input id="in" placeholder="Entrez un mot…">
+    <button id="go">Révéler</button>
+  </div>
+
+  <div class="fb" id="fb">Clé 1/5</div>
+
+  <div class="bar" id="bar">
+    <div>1</div><div>2</div><div>3</div><div>4</div><div>5</div>
+  </div>
+
+</div>
+
 <script>
-(function(){
-  const STEPS = [
-    { key:'souffle' },
-    { key:'rire' },
-    { key:'trace' },
-    { key:'voile' },
-    { key:'ombre' }
-  ];
+(()=> {
+  const KEYS = ['souffle','rire','trace','voile','ombre'];
+  let left = KEYS.length; // 5 -> 0
 
-  const MAX_STAGE = STEPS.length;
-  let stage = MAX_STAGE;
-  let longPressTimer;
-  
-  const img = document.getElementById('revealImg');
-  const stageLabel = document.getElementById('stage');
-  const feedback = document.getElementById('feedback');
-  const input = document.getElementById('pwd');
-  const tryBtn = document.getElementById('tryBtn');
-  const stepInfo = document.getElementById('stepInfo');
-  const progressGrid = document.getElementById('progressGrid');
-  const victoryMsg = document.getElementById('victoryMsg');
-  const copyHint = document.getElementById('copyHint');
-  const frame = document.getElementById('frame');
+  const img = document.getElementById('img');
+  const fb  = document.getElementById('fb');
+  const bar = [...document.querySelectorAll('#bar div')];
+  const go  = document.getElementById('go');
+  const inp = document.getElementById('in');
+  const leftEl = document.getElementById('left');
 
-  const blurLevels = [0, 10, 20, 30, 40, 50];
+  update();
 
-  init();
+  go.addEventListener('click', tryWord);
+  inp.addEventListener('keydown', e => (e.key==='Enter') && tryWord());
 
-  function init(){
-    for(let i = 0; i < STEPS.length; i++){
-      const item = document.createElement('div');
-      item.className = 'progress-item';
-      item.textContent = i + 1;
-      item.id = 'progress_' + i;
-      progressGrid.appendChild(item);
-    }
-    updateVisual();
-    updateUI();
-    input.focus();
-    
-    // Long press handling
-    img.addEventListener('mousedown', startLongPress);
-    img.addEventListener('touchstart', startLongPress);
-    img.addEventListener('mouseup', cancelLongPress);
-    img.addEventListener('touchend', cancelLongPress);
-    img.addEventListener('mouseleave', cancelLongPress);
-    img.addEventListener('touchcancel', cancelLongPress);
-  }
-
-  tryBtn.addEventListener('click', onTry);
-  input.addEventListener('keydown', (e)=>{ 
-    if(e.key === 'Enter') onTry(); 
-  });
-
-  function startLongPress(e){
-    longPressTimer = setTimeout(() => {
-      copyImageToClipboard();
-    }, 800);
-  }
-
-  function cancelLongPress(){
-    clearTimeout(longPressTimer);
-  }
-
-  async function copyImageToClipboard(){
-    try {
-      const response = await fetch(img.src);
-      const blob = await response.blob();
-      await navigator.clipboard.write([
-        new ClipboardItem({ 'image/png': blob })
-      ]);
-      showFeedback('✅ Image copiée !', 'ok');
-    } catch(err){
-      showFeedback('❌ Erreur lors de la copie', 'err');
-    }
-  }
-
-  img.addEventListener('error', ()=>{
-    const warn = document.createElement('div');
-    warn.style.cssText = "position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#1a1a1a;color:#fff;font-size:13px;text-align:center;padding:20px;border-radius:12px";
-    warn.innerHTML = "⚠️ Image non trouvée<br>Placez 'dracula_revelation.png' ici";
-    frame.appendChild(warn);
-  });
-
-  function onTry(){
-    const val = normalize(input.value);
-    input.value = '';
-
-    const expectedIndex = STEPS.length - stage;
-    const expected = STEPS[expectedIndex]?.key;
-
-    if(!val){
-      showFeedback('Entrez votre réponse !', 'warn');
-      return;
-    }
-
-    if(!expected){
-      showFeedback('Jeu terminé ! 🎉', 'ok');
-      return;
-    }
-
-    if(val === expected){
-      markCompleted(expectedIndex);
-      if(stage > 0) stage--;
-      updateVisual();
-      updateUI();
-
-      if(stage === 0){
-        victoryMsg.style.display = 'block';
-        copyHint.classList.add('active');
-        addCelebration();
-        img.classList.add('revealed');
-      } else {
-        const remaining = stage;
-        showFeedback(`"${expected}" ✓ | ${remaining} voile${remaining > 1 ? 's' : ''} restant${remaining > 1 ? 's' : ''}`, 'ok');
-        setTimeout(() => input.focus(), 300);
+  function tryWord(){
+    const v = norm(inp.value); inp.value = ''; inp.focus();
+    if(!v) return fb.textContent = 'Tapez un mot.';
+    const idx = KEYS.length - left;
+    const expect = KEYS[idx];
+    if(v === expect){
+      left--; bar[idx].classList.add('on');
+      fb.textContent = `Clé ${idx+1}/5 : ${expect}`;
+      if(left === 0){
+        img.classList.add('clear'); // image nette
+        fb.textContent = 'Révélation complète !';
       }
     } else {
-      showFeedback('Pas le bon mot... Cherchez !', 'err');
-      document.querySelector('.card').classList.add('shake');
-      setTimeout(() => {
-        document.querySelector('.card').classList.remove('shake');
-      }, 400);
+      fb.textContent = 'Mauvais mot. Relisez le message…';
+    }
+    update();
+    // focus visuel sur l'image
+    document.querySelector('.frame').scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  function update(){
+    leftEl.textContent = left;
+    if(left===0){ img.classList.add('clear'); }
+    else {
+      const blur = 8*left, b=0.55+(5-left)*0.08, c=0.9+(5-left)*0.03, s=Math.max(0,0.25-(5-left)*0.05);
+      img.style.filter = `blur(${blur}px) brightness(${b}) contrast(${c}) sepia(${s})`;
     }
   }
 
-  function addCelebration(){
-    const emojis = ['🎉', '✨', '🎊', '👏'];
-    for(let i = 0; i < 4; i++){
-      const el = document.createElement('div');
-      el.className = 'completion-celebration';
-      el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-      el.style.left = (20 + Math.random() * 60) + '%';
-      el.style.top = (30 + Math.random() * 40) + '%';
-      frame.appendChild(el);
-      setTimeout(() => el.remove(), 1200);
-    }
-  }
-
-  function showFeedback(msg, type){
-    feedback.textContent = msg;
-    feedback.className = 'feedback ' + type;
-    feedback.style.display = 'flex';
-    setTimeout(() => {
-      feedback.style.display = 'none';
-    }, 3500);
-  }
-
-  function markCompleted(index){
-    const item = document.getElementById('progress_' + index);
-    if(item){
-      item.classList.add('completed');
-      item.textContent = '✓';
-    }
-  }
-
-  function updateVisual(){
-    if(stage < 0) stage = 0;
-    if(stage > MAX_STAGE) stage = MAX_STAGE;
-    
-    if(stage === 0){
-      img.classList.add('revealed');
-    } else {
-      img.classList.remove('revealed');
-      const blur = blurLevels[stage] ?? 0;
-      const brightness = Math.max(0.3, 0.2 + (stage / MAX_STAGE) * 1.2);
-      const contrast = 0.7 + (stage / MAX_STAGE) * 0.3;
-      
-      img.style.filter = `blur(${blur}px) brightness(${brightness}) contrast(${contrast})`;
-    }
-    
-    stageLabel.textContent = `${stage}/${MAX_STAGE}`;
-  }
-
-  function updateUI(){
-    const nextIndex = STEPS.length - stage;
-    
-    if(stage === 0){
-      stepInfo.textContent = 'Challenge terminé !';
-    } else {
-      stepInfo.textContent = `Clé ${nextIndex + 1}/${STEPS.length}`;
-    }
-    
-    for(let i = 0; i < STEPS.length; i++){
-      const item = document.getElementById('progress_' + i);
-      if(!item) continue;
-      
-      item.classList.remove('current');
-      if(i === nextIndex && stage > 0){
-        item.classList.add('current');
-      }
-    }
-  }
-
-  function normalize(s){
+  function norm(s){
     return (s||'').toLowerCase().trim().replace(/\s+/g,'')
-      .replace(/[àáâäãå]/g,'a').replace(/[èéêë]/g,'e')
-      .replace(/[ìíîï]/g,'i').replace(/[òóôöõ]/g,'o')
-      .replace(/[ùúûü]/g,'u').replace(/[ç]/g,'c').replace(/[ñ]/g,'n');
+      .replace(/[àáâäãå]/g,'a').replace(/[èéêë]/g,'e').replace(/[ìíîï]/g,'i')
+      .replace(/[òóôöõ]/g,'o').replace(/[ùúûü]/g,'u').replace(/ç/g,'c');
   }
 })();
 </script>
