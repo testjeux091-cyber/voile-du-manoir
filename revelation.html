@@ -69,6 +69,20 @@
   
   .input-container{
     display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:16px;
+    width:100%;
+  }
+  
+  .step-counter{
+    font-size:18px;
+    font-weight:700;
+    color:var(--gold);
+  }
+  
+  .input-box{
+    display:flex;
     align-items:center;
     gap:12px;
     background:rgba(0,0,0,0.7);
@@ -78,6 +92,12 @@
     border:1px solid rgba(134,192,138,0.3);
     width:100%;
     max-width:280px;
+    transition:border-color 0.3s, background 0.3s;
+  }
+  
+  .input-box.error{
+    border-color:#ff6b6b;
+    background:rgba(255,107,107,0.15);
   }
   
   input[type="text"]{
@@ -190,8 +210,11 @@
     
     <div class="input-overlay" id="inputOverlay">
       <div class="input-container" id="inputContainer">
-        <input id="pwd" type="text" autocomplete="off" spellcheck="false" placeholder="?" />
-        <button class="submit-btn" id="tryBtn">✓</button>
+        <div class="step-counter" id="stepCounter">1/5</div>
+        <div class="input-box" id="inputBox">
+          <input id="pwd" type="text" autocomplete="off" spellcheck="false" placeholder="?" />
+          <button class="submit-btn" id="tryBtn">✓</button>
+        </div>
       </div>
     </div>
     
@@ -214,8 +237,9 @@
   const input = document.getElementById('pwd');
   const tryBtn = document.getElementById('tryBtn');
   const inputOverlay = document.getElementById('inputOverlay');
-  const victoryScreen = document.getElementById('victoryScreen');
   const inputContainer = document.getElementById('inputContainer');
+  const stepCounter = document.getElementById('stepCounter');
+  const inputBox = document.getElementById('inputBox');
 
   const blurLevels = [0, 10, 20, 30, 40, 50];
 
@@ -252,17 +276,20 @@
 
       if(stage === 0){
         inputOverlay.style.display = 'none';
-        victoryScreen.classList.add('show');
         img.classList.add('revealed');
         addCelebration();
       } else {
-        input.value = '';
-        input.focus();
+        inputOverlay.style.display = 'none';
+        setTimeout(() => {
+          input.value = '';
+          inputOverlay.style.display = 'flex';
+          input.focus();
+        }, 800);
       }
     } else {
-      inputContainer.classList.add('shake');
+      inputBox.classList.add('error');
       setTimeout(() => {
-        inputContainer.classList.remove('shake');
+        inputBox.classList.remove('error');
       }, 400);
       input.value = '';
       input.focus();
@@ -285,6 +312,9 @@
   function updateVisual(){
     if(stage < 0) stage = 0;
     if(stage > MAX_STAGE) stage = MAX_STAGE;
+    
+    const currentStep = STEPS.length - stage + 1;
+    stepCounter.textContent = `${currentStep}/${STEPS.length}`;
     
     if(stage === 0){
       img.classList.add('revealed');
